@@ -110,6 +110,7 @@ const initHLS = (src) => {
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       video.currentTime = 0;
       video.muted = true; // ✅ allow autoplay without user interaction
+           setMuted(true);
       video.play()
         .then(() => setPlaying(true))
         .catch(() => setPlaying(false));
@@ -118,6 +119,7 @@ const initHLS = (src) => {
     video.src = src;
     video.currentTime = 0;
     video.muted = true;
+         setMuted(true);
     video.play()
       .then(() => setPlaying(true))
       .catch(() => setPlaying(false));
