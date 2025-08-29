@@ -225,17 +225,38 @@ const initHLS = (src) => {
     setPlaybackRate(rate);
   };
 
-  // Fullscreen
-  const toggleFullscreen = () => {
-    const container = containerRef.current;
-    if (!document.fullscreenElement) {
+// Fullscreen
+const toggleFullscreen = () => {
+  const container = containerRef.current;
+  if (!container) return;
+
+  // ✅ Enter fullscreen
+  if (
+    !document.fullscreenElement &&
+    !document.webkitFullscreenElement &&
+    !document.msFullscreenElement
+  ) {
+    if (container.requestFullscreen) {
       container.requestFullscreen();
-      setFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setFullscreen(false);
+    } else if (container.webkitRequestFullscreen) {
+      container.webkitRequestFullscreen(); // Safari / iOS
+    } else if (container.msRequestFullscreen) {
+      container.msRequestFullscreen(); // old Edge/IE
     }
-  };
+    setFullscreen(true);
+  } else {
+    // ✅ Exit fullscreen
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+    }
+    setFullscreen(false);
+  }
+};
+
 
  // Quality change (fixed resume issue)
 const handleQualityChange = (q) => {
