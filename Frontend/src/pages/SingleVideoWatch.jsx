@@ -226,11 +226,20 @@ const initHLS = (src) => {
   };
 
 // Fullscreen
+// Fullscreen
 const toggleFullscreen = () => {
   const container = containerRef.current;
-  if (!container) return;
+  const video = videoRef.current;
 
-  // ✅ Enter fullscreen
+  if (!container || !video) return;
+
+  // iOS Safari: only video fullscreen works
+  if (video.webkitEnterFullscreen) {
+    video.webkitEnterFullscreen();
+    return;
+  }
+
+  // Other browsers
   if (
     !document.fullscreenElement &&
     !document.webkitFullscreenElement &&
@@ -239,13 +248,12 @@ const toggleFullscreen = () => {
     if (container.requestFullscreen) {
       container.requestFullscreen();
     } else if (container.webkitRequestFullscreen) {
-      container.webkitRequestFullscreen(); // Safari / iOS
+      container.webkitRequestFullscreen();
     } else if (container.msRequestFullscreen) {
-      container.msRequestFullscreen(); // old Edge/IE
+      container.msRequestFullscreen();
     }
     setFullscreen(true);
   } else {
-    // ✅ Exit fullscreen
     if (document.exitFullscreen) {
       document.exitFullscreen();
     } else if (document.webkitExitFullscreen) {
@@ -256,6 +264,7 @@ const toggleFullscreen = () => {
     setFullscreen(false);
   }
 };
+
 
 
  // Quality change (fixed resume issue)
