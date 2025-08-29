@@ -8,10 +8,14 @@ const searchRouter = require('./router/SearchRouter')
 const app = express()
 app.use(express.json({ limit: "5gb" }));
 app.use(express.urlencoded({ limit: "5gb", extended: true }));
- app.use(cors({}))
+ app.use(cors({
+    origin:'https://moviestream-lilac.vercel.app'
+ }))
  connectToDatabase()
 
-app.use('/videostream',uploadRoute,fetchRouter,searchRouter)
+app.use('/videostream',uploadRoute)
+app.use('/videostream',fetchRouter)
+app.use('/videostream',searchRouter)
 
 const PORT = process.env.PORT
 app.listen(PORT,()=>{
