@@ -2,7 +2,7 @@
   "headers": [
     {
       "source": "/(.*)",
-       "destination": "/index.html",
+       "destination": "/",
       "headers": [
         {
           "key": "Referrer-Policy",
