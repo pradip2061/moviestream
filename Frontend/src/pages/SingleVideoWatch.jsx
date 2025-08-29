@@ -39,37 +39,53 @@ const SingleVideoWatch = () => {
   const [relatedvideos, setRelatedVideos] = useState([]);
   const[episodes,setEpisodes]=useState([])
   // Fetch video and qualities
-  useEffect(() => {
-    const fetchVideo = async () => {
-      try {
-        
-        const res = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/getsinglevideo/${decodedId}`
-        );
-        const data = await res.json();
-        setVideo(data.videoDoc);
-        setRelatedVideos(data.relatedVideos);
-        setEpisodes(data.episodes)
-        const videoQualities = data.qualities || {};
+useEffect(() => {
+  const fetchVideo = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/getsinglevideo/${decodedId}`
+      );
+      const data = await res.json();
 
-        const mappedQualities = {
-          "1080p": videoQualities["1080p"],
-          "720p": videoQualities["720p"] || videoQualities["1080p"],
-          "480p":
-            videoQualities["480p"] ||
-            videoQualities["720p"] ||
-            videoQualities["1080p"],
-        };
+      setVideo(data.videoDoc);
+      setRelatedVideos(data.relatedVideos);
+      setEpisodes(data.episodes);
 
-        setQualities(mappedQualities);
-        setCurrentQuality("1080p");
-        initHLS(mappedQualities["1080p"]);
-      } catch (err) {
-        console.error("Video not found:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const videoQualities = data.qualities || {};
+      const mappedQualities = {
+        "1080p": videoQualities["1080p"],
+        "720p": videoQualities["720p"] || videoQualities["1080p"],
+        "480p":
+          videoQualities["480p"] ||
+          videoQualities["720p"] ||
+          videoQualities["1080p"],
+      };
+
+      setQualities(mappedQualities);
+      setCurrentQuality("1080p");
+    } catch (err) {
+      console.error("Video not found:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchVideo();
+
+  return () => {
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+    }
+  };
+}, [decodedId]);
+
+// 🔥 Separate effect: init HLS when quality is set
+useEffect(() => {
+  if (qualities && currentQuality && videoRef.current) {
+    initHLS(qualities[currentQuality]);
+  }
+}, [qualities, currentQuality]);
+
 const initHLS = (src) => {
   const video = videoRef.current;
   if (!video) return;
@@ -92,29 +108,22 @@ const initHLS = (src) => {
     hls.attachMedia(video);
 
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.currentTime = 0; // ⬅️ Always reset time
-      video.play().then(() => setPlaying(true)).catch(() => {
-        setPlaying(false); // if autoplay blocked
-      });
+      video.currentTime = 0;
+      video.muted = true; // ✅ allow autoplay without user interaction
+      video.play()
+        .then(() => setPlaying(true))
+        .catch(() => setPlaying(false));
     });
   } else {
     video.src = src;
     video.currentTime = 0;
-    video.play().then(() => setPlaying(true)).catch(() => {
-      setPlaying(false);
-    });
+    video.muted = true;
+    video.play()
+      .then(() => setPlaying(true))
+      .catch(() => setPlaying(false));
   }
 };
 
-
-    fetchVideo();
-
-    return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-      }
-    };
-  }, [decodedId]);
 
   // Video progress & buffering
   useEffect(() => {
