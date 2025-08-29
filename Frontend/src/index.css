@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .bg-darkblue {
+    background-color: rgb(30 41 59);
+  }
+  .text-darkblue {
+    color: rgb(30 41 59);
+  }
+  .bg-darkgray{
+    background-color: #1a2233;
+  }
+}
+/* Hide scrollbar for the whole website */
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+html {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+
+
+@theme {
+  --font-cursive: "Dancing Script", cursive;
+}
+
