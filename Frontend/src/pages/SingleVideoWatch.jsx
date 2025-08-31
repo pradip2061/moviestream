@@ -227,7 +227,7 @@ const initHLS = (src) => {
 
 // Fullscreen
 // Fullscreen
-const toggleFullscreen = () => {
+const toggleFullscreen = async () => {
   const container = containerRef.current;
   const video = videoRef.current;
 
@@ -245,23 +245,41 @@ const toggleFullscreen = () => {
     !document.webkitFullscreenElement &&
     !document.msFullscreenElement
   ) {
-    if (container.requestFullscreen) {
-      container.requestFullscreen();
-    } else if (container.webkitRequestFullscreen) {
-      container.webkitRequestFullscreen();
-    } else if (container.msRequestFullscreen) {
-      container.msRequestFullscreen();
+    try {
+      if (container.requestFullscreen) {
+        await container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) {
+        await container.webkitRequestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        await container.msRequestFullscreen();
+      }
+
+      // Force landscape if supported
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock("landscape");
+      }
+      setFullscreen(true);
+    } catch (err) {
+      console.warn("Fullscreen request or orientation lock failed:", err);
     }
-    setFullscreen(true);
   } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
+    try {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        await document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        await document.msExitFullscreen();
+      }
+
+      // Back to portrait if supported
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock("portrait");
+      }
+      setFullscreen(false);
+    } catch (err) {
+      console.warn("Exit fullscreen or orientation unlock failed:", err);
     }
-    setFullscreen(false);
   }
 };
 
